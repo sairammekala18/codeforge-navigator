@@ -73,7 +73,7 @@ const Problems = () => {
               <TabsTrigger value="practice">Practice ({effectiveRating - 200} - {effectiveRating})</TabsTrigger>
               <TabsTrigger value="challenge">Challenge ({effectiveRating} - {effectiveRating + 200})</TabsTrigger>
               <TabsTrigger value="saved">
-                Saved ({savedProblems.length})
+                Favourites ({savedProblems.length})
               </TabsTrigger>
             </TabsList>
 

@@ -38,7 +38,7 @@ export function SavedProblems({ savedProblems, onUnsave }: SavedProblemsProps) {
       });
     } else {
       toast({
-        title: "Removed from saved",
+        title: "Removed from favourites",
         description: problem.problem_name,
       });
     }
@@ -54,9 +54,9 @@ export function SavedProblems({ savedProblems, onUnsave }: SavedProblemsProps) {
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
               <Bookmark className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="font-medium text-foreground mb-2">No saved problems</h3>
+            <h3 className="font-medium text-foreground mb-2">No favourites yet</h3>
             <p className="text-sm text-muted-foreground max-w-sm">
-              Save problems to practice later by clicking the bookmark icon on any problem card.
+              Add problems to favourites by clicking the bookmark icon on any problem card.
             </p>
           </div>
         </CardContent>
@@ -69,7 +69,7 @@ export function SavedProblems({ savedProblems, onUnsave }: SavedProblemsProps) {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           <Bookmark className="h-5 w-5 text-primary" />
-          Saved Problems
+          Favourites
           <span className="text-sm font-normal text-muted-foreground">
             ({savedProblems.length})
           </span>
