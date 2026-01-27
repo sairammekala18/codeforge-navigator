@@ -1,11 +1,11 @@
-import { useAuth, AuthProvider } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { AuthForm } from "@/components/AuthForm";
 import { HandleSetup } from "@/components/HandleSetup";
 import { HomePage } from "@/components/HomePage";
 import { useProfile } from "@/hooks/useProfile";
 import { Loader2 } from "lucide-react";
 
-function AppContent() {
+const Index = () => {
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
 
@@ -40,14 +40,6 @@ function AppContent() {
   }
 
   return <HomePage profile={profile} />;
-}
-
-const Index = () => {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  );
 };
 
 export default Index;

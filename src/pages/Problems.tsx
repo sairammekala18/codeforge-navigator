@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth, AuthProvider } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useProblems } from "@/hooks/useProblems";
 import { ProblemSection } from "@/components/ProblemSection";
@@ -10,9 +10,9 @@ import { Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Navigate } from "react-router-dom";
 
-function ProblemsContent() {
+const Problems = () => {
   const { user, loading: authLoading } = useAuth();
-  const { profile, loading: profileLoading, ratingHistory, refreshProfile } = useProfile();
+  const { profile, loading: profileLoading, refreshProfile } = useProfile();
   const { loading: problemsLoading, getProblemsByRating, saveProblem, unsaveProblem, isProblemSaved, savedProblems } = useProblems();
   
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -29,7 +29,11 @@ function ProblemsContent() {
     );
   }
 
-  if (!user || !profile?.codeforces_handle) {
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (!profile?.codeforces_handle) {
     return <Navigate to="/" replace />;
   }
 
@@ -107,14 +111,6 @@ function ProblemsContent() {
         </div>
       </main>
     </div>
-  );
-}
-
-const Problems = () => {
-  return (
-    <AuthProvider>
-      <ProblemsContent />
-    </AuthProvider>
   );
 };
 
