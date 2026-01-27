@@ -143,18 +143,20 @@ export function useProblems() {
   );
 
   const getProblemsByRating = useCallback(
-    (minRating: number, maxRating: number, tags?: string[], limit = 20) => {
-      return allProblems
-        .filter((problem) => {
-          if (!problem.rating) return false;
-          if (problem.rating < minRating || problem.rating > maxRating)
-            return false;
-          if (tags && tags.length > 0) {
-            return tags.some((tag) => problem.tags.includes(tag));
-          }
-          return true;
-        })
-        .slice(0, limit);
+    (minRating: number, maxRating: number, tags?: string[], limit = 60) => {
+      const filtered = allProblems.filter((problem) => {
+        if (!problem.rating) return false;
+        if (problem.rating < minRating || problem.rating > maxRating)
+          return false;
+        if (tags && tags.length > 0) {
+          return tags.some((tag) => problem.tags.includes(tag));
+        }
+        return true;
+      });
+      
+      // Shuffle for variety and return limited results
+      const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, limit);
     },
     [allProblems]
   );
