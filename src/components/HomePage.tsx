@@ -123,34 +123,6 @@ export function HomePage({ profile }: HomePageProps) {
 
         {/* Practice Cards */}
         <div className="grid gap-6 md:grid-cols-3">
-          {/* Favourites Card */}
-          <Card 
-            className="border-0 shadow-lg cursor-pointer card-hover group bg-gradient-to-br from-primary/5 to-transparent"
-            onClick={() => navigate("/problems")}
-          >
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-xl bg-primary/20 group-hover:bg-primary/30 transition-colors">
-                    <Heart className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl">Favourites</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {savedProblems.length} problems saved
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Your bookmarked problems for focused practice sessions.
-              </p>
-            </CardContent>
-          </Card>
-
           <Card 
             className="border-0 shadow-lg cursor-pointer card-hover group bg-gradient-to-br from-success/5 to-transparent"
             onClick={() => navigate("/problems")}
@@ -201,6 +173,34 @@ export function HomePage({ profile }: HomePageProps) {
             <CardContent>
               <p className="text-muted-foreground">
                 Push your limits with challenging problems above your current rating.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Favourites Card */}
+          <Card 
+            className="border-0 shadow-lg cursor-pointer card-hover group bg-gradient-to-br from-primary/5 to-transparent"
+            onClick={() => navigate("/problems")}
+          >
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-xl bg-primary/20 group-hover:bg-primary/30 transition-colors">
+                    <Heart className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl">Favourites</CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {savedProblems.length} problems saved
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Your bookmarked problems for focused practice sessions.
               </p>
             </CardContent>
           </Card>
