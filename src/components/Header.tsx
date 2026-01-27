@@ -42,7 +42,7 @@ export function Header({ profile, onRefresh }: HeaderProps) {
               <Code2 className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">CF Practice</h1>
+              <h1 className="text-xl font-bold text-foreground">PlusMinus200</h1>
               <p className="text-xs text-muted-foreground">Competitive Programming Trainer</p>
             </div>
           </div>
