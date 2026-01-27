@@ -15,7 +15,7 @@ interface ProblemSectionProps {
   isProblemSaved: (problem: CodeforcesProblem) => boolean;
 }
 
-const PROBLEMS_PER_PAGE = 12;
+const PROBLEMS_PER_PAGE = 18;
 
 export function ProblemSection({
   title,

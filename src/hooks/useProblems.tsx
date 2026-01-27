@@ -143,7 +143,7 @@ export function useProblems() {
   );
 
   const getProblemsByRating = useCallback(
-    (minRating: number, maxRating: number, tags?: string[], limit = 60) => {
+    (minRating: number, maxRating: number, tags?: string[], limit = 200) => {
       const filtered = allProblems.filter((problem) => {
         if (!problem.rating) return false;
         if (problem.rating < minRating || problem.rating > maxRating)
@@ -154,9 +154,8 @@ export function useProblems() {
         return true;
       });
       
-      // Shuffle for variety and return limited results
-      const shuffled = [...filtered].sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, limit);
+      // Return all matching problems up to the limit
+      return filtered.slice(0, limit);
     },
     [allProblems]
   );
