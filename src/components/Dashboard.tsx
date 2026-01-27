@@ -8,7 +8,7 @@ import { ProblemSection } from "./ProblemSection";
 import { TopicFilter } from "./TopicFilter";
 import { SavedProblems } from "./SavedProblems";
 import { Header } from "./Header";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Loader2 } from "lucide-react";
 
 export function Dashboard() {
@@ -33,8 +33,8 @@ export function Dashboard() {
   const currentRating = profile?.current_rating || 1200;
   const effectiveRating = customRating ?? currentRating;
 
-  const easyProblems = getFilteredProblems(effectiveRating, -200, selectedTags.length > 0 ? selectedTags : undefined, 15);
-  const challengingProblems = getFilteredProblems(effectiveRating, 200, selectedTags.length > 0 ? selectedTags : undefined, 15);
+  const easyProblems = getProblemsByRating(effectiveRating - 250, effectiveRating - 150, selectedTags.length > 0 ? selectedTags : undefined, 15);
+  const challengingProblems = getProblemsByRating(effectiveRating + 150, effectiveRating + 250, selectedTags.length > 0 ? selectedTags : undefined, 15);
 
   return (
     <div className="min-h-screen bg-background">
@@ -46,6 +46,10 @@ export function Dashboard() {
           <div className="lg:col-span-1 space-y-6">
             <UserStats profile={profile} />
             <RatingGraph ratingHistory={ratingHistory} />
+            <SavedProblems 
+              savedProblems={savedProblems} 
+              onUnsave={unsaveProblem}
+            />
           </div>
 
           {/* Right Column - Problems */}
@@ -57,46 +61,25 @@ export function Dashboard() {
               onRatingChange={setCustomRating}
             />
 
-            <Tabs defaultValue="recommendations" className="w-full">
-              <TabsList className="w-full grid grid-cols-3 mb-4">
-                <TabsTrigger value="recommendations">For You</TabsTrigger>
-                <TabsTrigger value="challenge">Challenge</TabsTrigger>
-                <TabsTrigger value="saved">
-                  Saved ({savedProblems.length})
-                </TabsTrigger>
-              </TabsList>
+            <ProblemSection
+              title="Practice Zone"
+              subtitle={`Rating ~${effectiveRating - 200}`}
+              problems={easyProblems}
+              variant="easy"
+              onSave={saveProblem}
+              onUnsave={unsaveProblem}
+              isProblemSaved={isProblemSaved}
+            />
 
-              <TabsContent value="recommendations" className="space-y-4 animate-fade-in">
-                <ProblemSection
-                  title="Practice Zone"
-                  subtitle={`Rating ${effectiveRating - 300} - ${effectiveRating - 100}`}
-                  problems={easyProblems}
-                  variant="easy"
-                  onSave={saveProblem}
-                  onUnsave={unsaveProblem}
-                  isProblemSaved={isProblemSaved}
-                />
-              </TabsContent>
-
-              <TabsContent value="challenge" className="space-y-4 animate-fade-in">
-                <ProblemSection
-                  title="Challenge Zone"
-                  subtitle={`Rating ${effectiveRating + 100} - ${effectiveRating + 300}`}
-                  problems={challengingProblems}
-                  variant="hard"
-                  onSave={saveProblem}
-                  onUnsave={unsaveProblem}
-                  isProblemSaved={isProblemSaved}
-                />
-              </TabsContent>
-
-              <TabsContent value="saved" className="animate-fade-in">
-                <SavedProblems 
-                  savedProblems={savedProblems} 
-                  onUnsave={unsaveProblem}
-                />
-              </TabsContent>
-            </Tabs>
+            <ProblemSection
+              title="Challenge Zone"
+              subtitle={`Rating ~${effectiveRating + 200}`}
+              problems={challengingProblems}
+              variant="hard"
+              onSave={saveProblem}
+              onUnsave={unsaveProblem}
+              isProblemSaved={isProblemSaved}
+            />
           </div>
         </div>
       </main>
