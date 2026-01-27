@@ -51,9 +51,9 @@ const Problems = () => {
   const currentRating = profile?.current_rating || 1200;
   const effectiveRating = customRating ?? currentRating;
 
-  // Exact ranges: x-200 to x and x to x+200
-  const practiceProblems = getProblemsByRating(effectiveRating - 200, effectiveRating, selectedTags.length > 0 ? selectedTags : undefined, 20);
-  const challengeProblems = getProblemsByRating(effectiveRating, effectiveRating + 200, selectedTags.length > 0 ? selectedTags : undefined, 20);
+  // Exact ranges: x-200 to x and x to x+200 - fetch up to 60 problems each
+  const practiceProblems = getProblemsByRating(effectiveRating - 200, effectiveRating, selectedTags.length > 0 ? selectedTags : undefined, 60);
+  const challengeProblems = getProblemsByRating(effectiveRating, effectiveRating + 200, selectedTags.length > 0 ? selectedTags : undefined, 60);
 
   return (
     <div className="min-h-screen bg-background">
