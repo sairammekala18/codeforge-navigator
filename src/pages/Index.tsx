@@ -1,7 +1,7 @@
 import { useAuth, AuthProvider } from "@/hooks/useAuth";
 import { AuthForm } from "@/components/AuthForm";
 import { HandleSetup } from "@/components/HandleSetup";
-import { Dashboard } from "@/components/Dashboard";
+import { HomePage } from "@/components/HomePage";
 import { useProfile } from "@/hooks/useProfile";
 import { Loader2 } from "lucide-react";
 
@@ -39,7 +39,7 @@ function AppContent() {
     return <HandleSetup />;
   }
 
-  return <Dashboard />;
+  return <HomePage profile={profile} />;
 }
 
 const Index = () => {
