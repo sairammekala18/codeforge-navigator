@@ -1,13 +1,52 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useAuth, AuthProvider } from "@/hooks/useAuth";
+import { AuthForm } from "@/components/AuthForm";
+import { HandleSetup } from "@/components/HandleSetup";
+import { Dashboard } from "@/components/Dashboard";
+import { useProfile } from "@/hooks/useProfile";
+import { Loader2 } from "lucide-react";
+
+function AppContent() {
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthForm />;
+  }
+
+  if (profileLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile?.codeforces_handle) {
+    return <HandleSetup />;
+  }
+
+  return <Dashboard />;
+}
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 
