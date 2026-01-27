@@ -154,8 +154,9 @@ export function useProblems() {
         return true;
       });
       
-      // Return all matching problems up to the limit
-      return filtered.slice(0, limit);
+      // Sort by rating in increasing order and return up to the limit
+      const sorted = filtered.sort((a, b) => (a.rating || 0) - (b.rating || 0));
+      return sorted.slice(0, limit);
     },
     [allProblems]
   );
