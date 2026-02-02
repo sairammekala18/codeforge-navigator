@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const { user, loading: authLoading } = useAuth();
-  const { profile, loading: profileLoading } = useProfile();
+  const { profile, loading: profileLoading, refreshProfile } = useProfile();
 
   if (authLoading) {
     return (
@@ -36,7 +36,7 @@ const Index = () => {
   }
 
   if (!profile?.codeforces_handle) {
-    return <HandleSetup />;
+    return <HandleSetup onHandleSet={refreshProfile} />;
   }
 
   return <HomePage profile={profile} />;
