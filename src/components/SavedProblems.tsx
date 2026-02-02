@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getRatingColor } from "@/types/codeforces";
-import { Bookmark, ExternalLink, Trash2, Loader2 } from "lucide-react";
+import { getRatingColor, CodeforcesProblem } from "@/types/codeforces";
+import { Bookmark, ExternalLink, Trash2, Loader2, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface SavedProblem {
@@ -19,9 +19,10 @@ interface SavedProblem {
 interface SavedProblemsProps {
   savedProblems: SavedProblem[];
   onUnsave: (problemId: string) => Promise<{ error: Error | null }>;
+  isProblemSolved?: (problem: CodeforcesProblem) => boolean;
 }
 
-export function SavedProblems({ savedProblems, onUnsave }: SavedProblemsProps) {
+export function SavedProblems({ savedProblems, onUnsave, isProblemSolved }: SavedProblemsProps) {
   const { toast } = useToast();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -82,6 +83,17 @@ export function SavedProblems({ savedProblems, onUnsave }: SavedProblemsProps) {
               ? `https://codeforces.com/problemset/problem/${problem.contest_id}/${problem.problem_index}`
               : null;
 
+            // Convert SavedProblem to CodeforcesProblem format for isProblemSolved check
+            const asCfProblem: CodeforcesProblem = {
+              contestId: problem.contest_id || 0,
+              index: problem.problem_index || "",
+              name: problem.problem_name,
+              type: "PROGRAMMING",
+              tags: problem.problem_tags || [],
+              rating: problem.problem_rating || undefined,
+            };
+            const isSolved = isProblemSolved ? isProblemSolved(asCfProblem) : false;
+
             return (
               <div
                 key={problem.id}
@@ -91,6 +103,9 @@ export function SavedProblems({ savedProblems, onUnsave }: SavedProblemsProps) {
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
+                      {isSolved && (
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      )}
                       {problem.contest_id && problem.problem_index && (
                         <span className="text-xs font-mono text-muted-foreground">
                           {problem.contest_id}{problem.problem_index}
