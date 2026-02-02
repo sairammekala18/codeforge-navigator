@@ -106,11 +106,17 @@ export function useProfile() {
     await updateCodeforcesHandle(profile.codeforces_handle);
   };
 
+  const refetch = async () => {
+    setLoading(true);
+    await fetchProfile();
+  };
+
   return {
     profile,
     loading,
     ratingHistory,
     updateCodeforcesHandle,
     refreshProfile,
+    refetch,
   };
 }
