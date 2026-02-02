@@ -6,7 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, User, ArrowRight } from "lucide-react";
 
-export function HandleSetup() {
+interface HandleSetupProps {
+  onHandleSet?: () => Promise<void>;
+}
+
+export function HandleSetup({ onHandleSet }: HandleSetupProps) {
   const { updateCodeforcesHandle } = useProfile();
   const { toast } = useToast();
   const [handle, setHandle] = useState("");
@@ -33,14 +37,18 @@ export function HandleSetup() {
         title: "Failed to verify handle",
         description: error.message,
       });
+      setLoading(false);
     } else {
       toast({
         title: "Handle verified!",
         description: "Your Codeforces profile has been connected.",
       });
+      // Refresh the parent's profile state to trigger navigation
+      if (onHandleSet) {
+        await onHandleSet();
+      }
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
