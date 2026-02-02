@@ -1,60 +1,64 @@
 
-# Fix: Handle Setup Navigation Issue
 
-## Problem Analysis
-After signing up and entering a Codeforces handle, the app stays on the HandleSetup page instead of navigating to the HomePage. It only works after a page refresh.
+# Add Google Sign-In to Authentication
 
-**Root Cause:** There are two separate instances of the `useProfile` hook:
-- One in `Index.tsx` (controls navigation)
-- One in `HandleSetup.tsx` (handles the form submission)
+## Overview
+Add a "Continue with Google" button to the authentication form, allowing users to quickly sign up or sign in using their Google account. This is fully managed by Lovable Cloud and requires no additional configuration.
 
-Each hook instance has its own independent state. When the handle is submitted, only the HandleSetup's instance gets updated. The Index.tsx instance never receives the updated profile data, so navigation never triggers.
+## Implementation Details
 
-The `refreshProfile` function has a guard that prevents it from working:
-```javascript
-const refreshProfile = async () => {
-  if (!profile?.codeforces_handle) return;  // This returns early!
-  await updateCodeforcesHandle(profile.codeforces_handle);
-};
+### Step 1: Configure Google OAuth Provider
+Use the Lovable Cloud authentication configuration tool to enable Google OAuth. This will:
+- Generate the required Lovable auth module at `src/integrations/lovable/`
+- Install the `@lovable.dev/cloud-auth-js` package automatically
+
+### Step 2: Update Authentication Hook (`src/hooks/useAuth.tsx`)
+Add a new `signInWithGoogle` function to the auth context:
+- Import the `lovable` module from the generated integration
+- Create a function that calls `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin })`
+- Export this function through the AuthContext
+
+### Step 3: Update Auth Form (`src/components/AuthForm.tsx`)
+Add Google sign-in button to the UI:
+- Add a "Continue with Google" button with Google's brand icon
+- Add a visual divider ("or") between social login and email/password forms
+- Handle loading state and errors for the Google sign-in process
+- The button will appear above the existing email/password form on both Sign In and Sign Up tabs
+
+## User Experience Flow
+
+1. User lands on the auth page
+2. User sees "Continue with Google" button at the top
+3. User clicks the button
+4. User is redirected to Google's OAuth consent screen
+5. After authorizing, user is redirected back to the app
+6. The app detects the new session and navigates to the handle setup (for new users) or home page (for returning users)
+
+## Visual Layout
+
+```text
++----------------------------------+
+|          CF Practice             |
+|   Your personal training buddy   |
++----------------------------------+
+|                                  |
+|   [G] Continue with Google       |
+|                                  |
+|   ────────── or ──────────       |
+|                                  |
+|   [ Sign In ] [ Sign Up ]        |
+|                                  |
+|   Email: [__________________]    |
+|   Password: [_______________]    |
+|                                  |
+|   [      Sign In Button    ]     |
++----------------------------------+
 ```
 
-Since the profile in Index.tsx doesn't have a handle yet, calling `refreshProfile` does nothing.
+## Technical Notes
 
-## Solution
-Create a new `fetchProfile` function that can be called without any preconditions, and pass that to HandleSetup instead of `refreshProfile`. This will force the Index.tsx instance to re-fetch the profile from the database after the handle is set.
+- Uses Lovable Cloud's managed OAuth (no API keys needed from you)
+- The `lovable.auth.signInWithOAuth()` function handles the entire OAuth flow
+- Session is automatically picked up by the existing `onAuthStateChange` listener in `useAuth`
+- Profile creation for new users is handled by the existing database trigger
 
-## Changes Required
-
-### 1. Update `src/hooks/useProfile.tsx`
-- Move `fetchProfile` outside the useEffect or make it callable externally
-- Export a new `refetch` function that simply calls `fetchProfile` without any guards
-- This allows the parent component to force a profile refresh at any time
-
-### 2. Update `src/pages/Index.tsx`  
-- Use the new `refetch` function instead of `refreshProfile`
-- Pass `refetch` as the `onHandleSet` callback to `HandleSetup`
-
-## Technical Details
-
-The key change is adding this to the useProfile hook:
-```typescript
-// New function that always fetches fresh profile data
-const refetch = async () => {
-  setLoading(true);
-  await fetchProfile();
-};
-```
-
-And updating Index.tsx:
-```typescript
-const { profile, loading: profileLoading, refetch } = useProfile();
-// ...
-return <HandleSetup onHandleSet={refetch} />;
-```
-
-## Why This Works
-1. User submits handle → HandleSetup's instance updates the database
-2. HandleSetup calls `onHandleSet()` which is the `refetch` from Index.tsx
-3. Index.tsx's instance fetches fresh profile from database (now has the handle)
-4. The condition `!profile?.codeforces_handle` becomes false
-5. Navigation to HomePage occurs automatically
