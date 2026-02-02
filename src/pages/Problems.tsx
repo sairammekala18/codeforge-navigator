@@ -13,7 +13,17 @@ import { Navigate } from "react-router-dom";
 const Problems = () => {
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, refreshProfile } = useProfile();
-  const { loading: problemsLoading, getProblemsByRating, saveProblem, unsaveProblem, isProblemSaved, savedProblems } = useProblems();
+  const { 
+    loading: problemsLoading, 
+    solvedLoading,
+    solvedCount,
+    getProblemsByRating, 
+    saveProblem, 
+    unsaveProblem, 
+    isProblemSaved, 
+    isProblemSolved,
+    savedProblems 
+  } = useProblems(profile?.codeforces_handle || undefined);
   
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customRating, setCustomRating] = useState<number | null>(null);
@@ -37,12 +47,14 @@ const Problems = () => {
     return <Navigate to="/" replace />;
   }
 
-  if (problemsLoading) {
+  if (problemsLoading || solvedLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading problems...</p>
+          <p className="text-muted-foreground">
+            {solvedLoading ? "Loading your solved problems..." : "Loading problems..."}
+          </p>
         </div>
       </div>
     );
@@ -61,12 +73,19 @@ const Problems = () => {
       
       <main className="container mx-auto px-4 py-6 max-w-7xl">
         <div className="space-y-6">
-          <TopicFilter 
-            selectedTags={selectedTags}
-            onTagsChange={setSelectedTags}
-            currentRating={effectiveRating}
-            onRatingChange={setCustomRating}
-          />
+          <div className="space-y-2">
+            <TopicFilter 
+              selectedTags={selectedTags}
+              onTagsChange={setSelectedTags}
+              currentRating={effectiveRating}
+              onRatingChange={setCustomRating}
+            />
+            {solvedCount > 0 && (
+              <p className="text-sm text-muted-foreground">
+                Excluding {solvedCount} solved problems from recommendations
+              </p>
+            )}
+          </div>
 
           <Tabs defaultValue="practice" className="w-full">
             <TabsList className="w-full grid grid-cols-3 mb-4">
@@ -105,6 +124,7 @@ const Problems = () => {
               <SavedProblems 
                 savedProblems={savedProblems} 
                 onUnsave={unsaveProblem}
+                isProblemSolved={isProblemSolved}
               />
             </TabsContent>
           </Tabs>

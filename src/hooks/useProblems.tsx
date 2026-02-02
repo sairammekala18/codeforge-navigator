@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { CodeforcesProblem } from "@/types/codeforces";
+import { CodeforcesProblem, CodeforcesSubmission } from "@/types/codeforces";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
@@ -13,11 +13,13 @@ interface SavedProblem {
   problem_index: string | null;
 }
 
-export function useProblems() {
+export function useProblems(codeforcesHandle?: string) {
   const { user } = useAuth();
   const [allProblems, setAllProblems] = useState<CodeforcesProblem[]>([]);
   const [savedProblems, setSavedProblems] = useState<SavedProblem[]>([]);
+  const [solvedProblemIds, setSolvedProblemIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [solvedLoading, setSolvedLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,6 +33,14 @@ export function useProblems() {
       setSavedProblems([]);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (codeforcesHandle) {
+      fetchSolvedProblems(codeforcesHandle);
+    } else {
+      setSolvedProblemIds(new Set());
+    }
+  }, [codeforcesHandle]);
 
   const fetchProblems = async () => {
     try {
@@ -66,6 +76,34 @@ export function useProblems() {
       setSavedProblems(data || []);
     } catch (err) {
       console.error("Error fetching saved problems:", err);
+    }
+  };
+
+  const fetchSolvedProblems = async (handle: string) => {
+    setSolvedLoading(true);
+    try {
+      const response = await fetch(
+        `https://codeforces.com/api/user.status?handle=${handle}`
+      );
+      const data = await response.json();
+
+      if (data.status === "OK") {
+        const submissions: CodeforcesSubmission[] = data.result;
+        const solvedIds = new Set<string>();
+        
+        submissions.forEach((submission) => {
+          if (submission.verdict === "OK") {
+            const problemId = `${submission.problem.contestId}-${submission.problem.index}`;
+            solvedIds.add(problemId);
+          }
+        });
+
+        setSolvedProblemIds(solvedIds);
+      }
+    } catch (err) {
+      console.error("Error fetching solved problems:", err);
+    } finally {
+      setSolvedLoading(false);
     }
   };
 
@@ -148,6 +186,11 @@ export function useProblems() {
         if (!problem.rating) return false;
         if (problem.rating < minRating || problem.rating > maxRating)
           return false;
+        
+        // Exclude solved problems
+        const problemId = `${problem.contestId}-${problem.index}`;
+        if (solvedProblemIds.has(problemId)) return false;
+        
         if (tags && tags.length > 0) {
           return tags.some((tag) => problem.tags.includes(tag));
         }
@@ -158,17 +201,28 @@ export function useProblems() {
       const sorted = filtered.sort((a, b) => (a.rating || 0) - (b.rating || 0));
       return sorted.slice(0, limit);
     },
-    [allProblems]
+    [allProblems, solvedProblemIds]
+  );
+
+  const isProblemSolved = useCallback(
+    (problem: CodeforcesProblem) => {
+      const problemId = `${problem.contestId}-${problem.index}`;
+      return solvedProblemIds.has(problemId);
+    },
+    [solvedProblemIds]
   );
 
   return {
     allProblems,
     savedProblems,
+    solvedCount: solvedProblemIds.size,
     loading,
+    solvedLoading,
     error,
     saveProblem,
     unsaveProblem,
     isProblemSaved,
+    isProblemSolved,
     getFilteredProblems,
     getProblemsByRating,
     refreshSavedProblems: fetchSavedProblems,
